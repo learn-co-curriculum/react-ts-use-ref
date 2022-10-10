@@ -1,7 +1,7 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 
 function Box() {
-  const elementRef = useRef();
+  const elementRef = useRef(null);
 
   return (
     <div ref={elementRef}>
