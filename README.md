@@ -21,7 +21,7 @@ to the `useState` hook: the `useState` hook also lets us keep track of values
 across multiple renders of our component, like this:
 
 ```jsx
-import React, { useState } from "react";
+import { useState } from "react";
 
 function CounterState() {
   const [count, setCount] = useState(0);
@@ -46,7 +46,7 @@ component re-renders. Also, **calling `setCount` will trigger a re-render**.
 Using a ref instead, our component would look like this:
 
 ```jsx
-import React, { useRef } from "react";
+import { useRef } from "react";
 
 function CounterRef() {
   const count = useRef(0);
@@ -68,13 +68,13 @@ function CounterRef() {
 To break down the code:
 
 - We must first import the `useRef` hook, just like with the other hooks we've
-  seen
-- We call `useRef` and pass in an initial value
+  seen.
+- We call `useRef` and pass in an initial value.
 - Calling `useRef` creates a new internal value in React and gives us access to
   that value in a **ref variable**, which is an **object** with just one key:
-  `current`. It looks like this: `{ current: 0 }`
+  `current`. It looks like this: `{ current: 0 }`.
 - To update the value of the ref in React's internals, we update its `current`
-  property: `count.current = count.current + 1`
+  property: `count.current = count.current + 1`.
 
 The key difference between these approaches is that in the `useRef` example,
 updating the ref variable **does not cause our component to re-render**. Try out
@@ -91,17 +91,18 @@ Let's see some good use cases for the `useRef` hook.
 
 Let's build out a price tracking component. The features of this component are:
 
-- Every 1 second, generate a new random price
+- Every 1 second, generate a new random price.
 - If the old price is less than the new price, use a green font color to
-  indicate a rise in price
+  indicate a rise in price.
 - If the old price is greater than the new price, use a red font color to
-  indicate a drop in price
+  indicate a drop in price.
 
 Here's some starter code that implements the first feature of generating a
 random price each second:
 
 ```jsx
-import React, { useEffect, useState } from "react";
+// src/components/Ticker.tsx
+import { useEffect, useState } from "react";
 import { makeRandomNumber } from "../utils";
 
 function Ticker() {
@@ -131,6 +132,7 @@ on the price, we can start off by writing out a side effect with the price as
 the dependency:
 
 ```jsx
+// src/components/Ticker.tsx
 useEffect(() => {
   // we need some way to get the prevPrice...
   if (price > prevPrice) {
@@ -146,14 +148,15 @@ useEffect(() => {
 To make this work, we need to persist the previous price. This is where we can
 use the `useRef` hook! Since our goal is to:
 
-- Access the same data across renders
-- Not re-render the component when saving this data
+- Access the same data across renders.
+- Not re-render the component when saving this data/
 
 `useRef` is a good tool for the job of storing the previous price. Here's how
 we'd use it:
 
 ```jsx
-import React, { useEffect, useRef, useState } from "react";
+// src/components/Ticker.tsx
+import { useEffect, useRef, useState } from "react";
 import { makeRandomNumber } from "../utils";
 
 function Ticker() {
@@ -204,18 +207,19 @@ React control over the DOM based on the JSX that is returned by our components.
 However, sometimes it is also useful to gain access to the actual DOM elements
 for a few uses outside of the React rendering cycle, such as:
 
-- using a third-party library that needs access to a DOM element
-- accessing input values in a non-controlled form
-- setting focus on an element
-- measuring the size of a DOM element
-- working with a `<canvas>` or `<video>` element
+- Using a third-party library that needs access to a DOM element.
+- Accessing input values in a non-controlled form.
+- Setting focus on an element.
+- Measuring the size of a DOM element.
+- Working with a `<canvas>` or `<video>` element.
 
 To use a ref on a DOM element, we first create the ref using the `useRef` hook,
-just like before:
+just like before. However this time, we pass it an initial value of `null`:
 
 ```jsx
+// src/components/Box.tsx
 function Box() {
-  const elementRef = useRef();
+  const elementRef = useRef(null);
 
   return (
     <div>
@@ -230,8 +234,9 @@ Then, we can attach the ref to a DOM element by adding a special `ref` attribute
 to our JSX element:
 
 ```jsx
+// src/components/Box.tsx
 function Box() {
-  const elementRef = useRef();
+  const elementRef = useRef(null);
 
   return (
     <div ref={elementRef}>
@@ -242,11 +247,30 @@ function Box() {
 }
 ```
 
+Additionally, because we're using TypeScript, we need to tell `useRef` the type
+of the element we're attaching it to. Similar to `useState`, we type it using
+the generic `<>` syntax: `useRef<typeHere>`.
+
+We can find the type of the element the same way we found it when typing events,
+by hovering over the `ref` attribute in our IDE. In this particular case, we can
+see our element is of type `HTMLDivElement`.
+
+![Hovering over the ref attribute to identify the element type](https://imgur.com/JhK45MG.gif)
+
+Because our initial value is `null`, we need to make it a union type of
+`HTMLDivElement | null`:
+
+```ts
+// src/components/Box.tsx
+const elementRef = useRef<HTMLDivElement | null>(null);
+```
+
 Now, we can access information about that DOM element in our component:
 
-```jsx
+```tsx
+// src/components/Box.tsx
 function Box() {
-  const elementRef = useRef();
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
   function handleMeasureClick() {
     const div = elementRef.current;
@@ -269,8 +293,8 @@ changes over time.
 
 ## Conclusion
 
-Like `useState`, the `useRef` hook gives us some internal React values that
-will persist across renders of our component. Unlike **state**, when we update a
+Like `useState`, the `useRef` hook gives us some internal React values that will
+persist across renders of our component. Unlike **state**, when we update a
 **ref**, React will not automatically re-render our component. This makes refs
 useful for keeping track of persistent data in our components, similar to an
 instance variable.

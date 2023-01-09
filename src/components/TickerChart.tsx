@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { makeRandomNumber } from "../utils";
 import { addPoint } from "../utils/chart";
 
@@ -6,7 +6,7 @@ function Ticker() {
   const [price, setPrice] = useState({ value: 0, ticks: 0 });
   const [color, setColor] = useState("black");
   const prevPrice = useRef(price);
-  const canvasRef = useRef();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     addPoint(canvasRef.current, prevPrice.current, price);
